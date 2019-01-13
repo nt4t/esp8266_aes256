@@ -25,8 +25,10 @@
 ###############################################################################
 
 import sys
+import os
 
 import base64, re
+import binascii
 from Crypto.Cipher import AES
 from Crypto import Random
 
@@ -52,22 +54,22 @@ class AESCipher:
         self.key = key
         self.blk_sz = blk_sz
 
-    def encrypt( self, raw ):
+    def encrypt( self, iv, raw ):
         if raw is None or len(raw) == 0:
             raise NameError("No value given to encrypt")
         raw = raw + '\0' * (self.blk_sz - len(raw) % self.blk_sz)
-        iv = Random.new().read( AES.block_size )
+        # iv = Random.new().read( AES.block_size )
         cipher = AES.new( self.key, AES.MODE_CBC, iv )
-        return base64.b64encode( iv + cipher.encrypt( raw ) ).decode('utf-8')
+        # return iv, base64.b64encode(cipher.encrypt( raw ) ).decode('utf-8')
+        return binascii.b2a_base64(cipher.encrypt( raw ) ).decode('utf-8')
 
-    def decrypt( self, enc ):
-        if enc is None or len(enc) == 0:
-            raise NameError("No value given to decrypt")
-        enc = base64.b64decode(enc)
-        iv = enc[:16]
-        cipher = AES.new(self.key, AES.MODE_CBC, iv )
-        # cipher = AES.new(self.key, AES.MODE_CBC, "6199080101111111" )
-        return re.sub(b'\x00*$', b'', cipher.decrypt( enc[16:])).decode('utf-8')
+    # def decrypt( self, enc ):
+        # if enc is None or len(enc) == 0:
+            # raise NameError("No value given to decrypt")
+        # enc = base64.b64decode(enc)
+        # iv = enc[:16]
+        # cipher = AES.new(self.key, AES.MODE_CBC, iv )
+        # return re.sub(b'\x00*$', b'', cipher.decrypt( enc[16:])).decode('utf-8')
         # return cipher.decrypt(enc)
 
     def decryptIv( self, iv, enc ):
@@ -90,14 +92,39 @@ class EchoServerProtocol(WebSocketServerProtocol):
         print(crypt_msg[-1])
         print(crypt_msg[-2])
 
+        #decrypt incoming message
         aes = AESCipher(b"1234" * 8, 32)
         msg = aes.decryptIv(crypt_msg[-2], crypt_msg[-1])
         print(msg)
 
-        self.sendMessage(payload, isBinary)
+        #ecrypt ansver 
+        aes = AESCipher(b"1234" * 8, 32)
+        iv = crypt_msg[-2]
+        
+        iv = Random.new().read( 16 )
+        iv = binascii.b2a_base64(iv).encode('utf-8').rstrip()
+        iv += '1' * (16 - (len(iv)) % 16)    #align data to be a multiple of 16 in lenght
+
+        encryp_msg = aes.encrypt( binascii.a2b_base64(iv), 'hello from server' )
+        # print(encryp_msg)
+        uname = os.uname()
+        name = '{sysname} {release} {civ} {cmsg}'.format(
+            sysname="linux",
+            release="1.0",
+            civ=iv,
+            cmsg=encryp_msg,
+        )
+        print name
+
+        self.sendMessage(name, isBinary)
 
 
 if __name__ == '__main__':
+    iv = Random.new().read( 16 )
+    iv = binascii.b2a_base64(iv).encode('utf-8').rstrip()
+    iv += '1' * (16 - (len(iv)) % 16)    #align data to be a multiple of 16 in lenght
+    # iv += binascii.b2a_base64(Random.new().read( 1 )) * (16 - (len(iv)) % 16)    #align data to be a multiple of 16 in lenght
+    print (iv) 
 
     log.startLogging(sys.stdout)
 
