@@ -38,8 +38,8 @@ def makeIv():
 
 
 def hello():
-    # with uwebsockets.client.connect('ws://192.168.12.1:8080/ws') as websocket:
-    with uwebsockets.client.connect('ws://192.168.12.49:8080/ws') as websocket:
+    with uwebsockets.client.connect('ws://192.168.12.1:8080/ws') as websocket:
+    # with uwebsockets.client.connect('ws://192.168.12.49:8080/ws') as websocket:
 
         iv = makeIv()
 
