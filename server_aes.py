@@ -43,7 +43,8 @@ from autobahn.twisted.websocket import WebSocketServerFactory, \
 from autobahn.twisted.resource import WebSocketResource
 
 secret_key = "Secretkey"
-secret_key += '.' * (16 - (len(secret_key)) % 16)    #align data to be a multiple of 16 in lenght
+secret_key += '.' * (16 - (len(secret_key)) % 16
+                    )  #align data to be a multiple of 16 in lenght
 
 
 class AESCipher:
@@ -54,29 +55,31 @@ class AESCipher:
       msg = aes.decrypt( encryp_msg )
       print("'{}'".format(msg))
     """
+
     def __init__(self, key, blk_sz):
         self.key = key
         self.blk_sz = blk_sz
 
-    def encrypt( self, iv, raw ):
+    def encrypt(self, iv, raw):
         if raw is None or len(raw) == 0:
             raise NameError("No value given to encrypt")
         raw = raw + '\0' * (self.blk_sz - len(raw) % self.blk_sz)
-        cipher = AES.new( self.key, AES.MODE_CBC, iv )
-        return binascii.b2a_base64(cipher.encrypt( raw ) ).decode('utf-8')
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return binascii.b2a_base64(cipher.encrypt(raw)).decode('utf-8')
 
-    def decryptIv( self, iv, enc ):
+    def decryptIv(self, iv, enc):
         if enc is None or len(enc) == 0:
             raise NameError("No value given to decrypt")
         enc = base64.b64decode(enc)
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         return cipher.decrypt(enc)
-    
-    def makeIv( self ):
-        ivrandh = Random.new().read( 16 )
-        ivrandl = Random.new().read( 16 )
+
+    def makeIv(self):
+        ivrandh = Random.new().read(16)
+        ivrandl = Random.new().read(16)
         ivrandh = binascii.b2a_base64(ivrandh).encode('utf-8').rstrip()
-        llenght = (16 - (len(ivrandh)) % 16)    #align data to be a multiple of 16 in lenght
+        llenght = (16 - (len(ivrandh)) % 16
+                  )  #align data to be a multiple of 16 in lenght
         ivrandl = binascii.b2a_base64(ivrandl).encode('utf-8').rstrip()
         iv = ivrandh + ivrandl[:llenght - 0]
         # print (iv)
@@ -93,18 +96,18 @@ class EchoServerProtocol(WebSocketServerProtocol):
         crypt_msg = payload.split(" ")
         # print(crypt_msg[-1])
         # print(crypt_msg[-2])
-        
+
         #decrypt incoming message
         aes = AESCipher(secret_key, 32)
         inc_msg = aes.decryptIv(crypt_msg[-2], crypt_msg[-1])
         print("decrypted message:", inc_msg)
 
-        #ecrypt ansver 
+        #ecrypt ansver
         aes = AESCipher(secret_key, 32)
 
         iv = aes.makeIv()
 
-        encryp_msg = aes.encrypt( binascii.a2b_base64(iv), 'hello from server' )
+        encryp_msg = aes.encrypt(binascii.a2b_base64(iv), 'hello from server')
         uname = os.uname()
         message = '{sysname} {release} {civ} {cmsg}'.format(
             sysname=uname[0],
