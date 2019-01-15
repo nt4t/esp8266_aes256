@@ -1,0 +1,3 @@
+[submodule "uwebsockets"]
+	path = uwebsockets
+	url = https://github.com/danni/uwebsockets

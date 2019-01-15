@@ -42,6 +42,10 @@ from autobahn.twisted.websocket import WebSocketServerFactory, \
 
 from autobahn.twisted.resource import WebSocketResource
 
+secret_key = "Secretkey"
+secret_key += '.' * (16 - (len(secret_key)) % 16)    #align data to be a multiple of 16 in lenght
+
+
 class AESCipher:
     """
       Usage:
@@ -75,7 +79,7 @@ class AESCipher:
         llenght = (16 - (len(ivrandh)) % 16)    #align data to be a multiple of 16 in lenght
         ivrandl = binascii.b2a_base64(ivrandl).encode('utf-8').rstrip()
         iv = ivrandh + ivrandl[:llenght - 0]
-        print (iv)
+        # print (iv)
         return iv
 
 
@@ -89,14 +93,14 @@ class EchoServerProtocol(WebSocketServerProtocol):
         crypt_msg = payload.split(" ")
         # print(crypt_msg[-1])
         # print(crypt_msg[-2])
-
+        
         #decrypt incoming message
-        aes = AESCipher(b"1234" * 8, 32)
+        aes = AESCipher(secret_key, 32)
         inc_msg = aes.decryptIv(crypt_msg[-2], crypt_msg[-1])
         print("decrypted message:", inc_msg)
 
         #ecrypt ansver 
-        aes = AESCipher(b"1234" * 8, 32)
+        aes = AESCipher(secret_key, 32)
 
         iv = aes.makeIv()
 
@@ -108,7 +112,7 @@ class EchoServerProtocol(WebSocketServerProtocol):
             civ=iv,
             cmsg=encryp_msg,
         )
-        # print message
+        print message
 
         self.sendMessage(message, isBinary)
 
@@ -118,7 +122,6 @@ if __name__ == '__main__':
     log.startLogging(sys.stdout)
 
     factory = WebSocketServerFactory(u"ws://127.0.0.1:8080")
-    # factory = WebSocketServerFactory(u"ws://192.168.12.49:8080")
     factory.protocol = EchoServerProtocol
 
     resource = WebSocketResource(factory)
