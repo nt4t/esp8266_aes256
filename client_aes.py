@@ -60,11 +60,10 @@ def hello():
         # print(greeting)
 
         encmsg = greeting.split(' ')
-        print("----")
         received_iv = binascii.a2b_base64(encmsg[-2])
         received_encmsg = encmsg[-1]
         
-        print(decrypt("", received_iv, received_encmsg))
+        print("decrypted message: ", decrypt("", received_iv, received_encmsg))
 
 
 hello()
