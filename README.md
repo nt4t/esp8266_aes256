@@ -12,7 +12,7 @@ import upip
 upip.install('micropython-logging')
 ```
 
-### Set correct ip 
+#### Set correct ip 
 
 ```
 with uwebsockets.client.connect('ws://192.168.12.1:8080/ws') as websocket:
