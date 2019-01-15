@@ -43,7 +43,7 @@ def hello():
 
         iv = makeIv()
 
-        instr = "test message from ecp"
+        instr = "test message from esp"
         instr += '.' * (16 - (len(instr) % 16))
         # print(instr)
 
