@@ -67,7 +67,7 @@ class AESCipher:
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         return binascii.b2a_base64(cipher.encrypt(raw)).decode('utf-8')
 
-    def decryptIv(self, iv, enc):
+    def decrypt(self, iv, enc):
         if enc is None or len(enc) == 0:
             raise NameError("No value given to decrypt")
         enc = base64.b64decode(enc)
@@ -99,7 +99,7 @@ class EchoServerProtocol(WebSocketServerProtocol):
 
         #decrypt incoming message
         aes = AESCipher(secret_key, 32)
-        inc_msg = aes.decryptIv(crypt_msg[-2], crypt_msg[-1])
+        inc_msg = aes.decrypt(crypt_msg[-2], crypt_msg[-1])
         print("decrypted message:", inc_msg)
 
         #ecrypt ansver

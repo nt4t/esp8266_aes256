@@ -51,14 +51,14 @@ def hello():
         # print(enc)
 
         uname = os.uname()
-        name = '{sysname} {release} {civ} {cmsg}'.format(
+        message = '{sysname} {release} {civ} {cmsg}'.format(
             sysname=uname.sysname,
             release=uname.release,
             civ=iv,
             cmsg=enc,
         )
-        websocket.send(name)
-        print("> {}".format(name))
+        websocket.send(message)
+        print("> {}".format(message))
 
         greeting = websocket.recv()
         print("< {}".format(greeting))
