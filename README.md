@@ -1,5 +1,5 @@
 
-# Micropython websockets AES 256 on the client side (esp8266 implementation)
+# Micropython websocket AES 256 on the client side (esp8266 implementation)
 
 ## Client install
 
