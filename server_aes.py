@@ -45,7 +45,7 @@ from autobahn.twisted.resource import WebSocketResource
 secret_key = "Secretkey"
 secret_key += '.' * (16 - (len(secret_key)) % 16
                     )  #align data to be a multiple of 16 in lenght
-
+block_size=32
 
 class AESCipher:
     """
@@ -98,12 +98,12 @@ class EchoServerProtocol(WebSocketServerProtocol):
         # print(crypt_msg[-2])
 
         #decrypt incoming message
-        aes = AESCipher(secret_key, 32)
+        aes = AESCipher(secret_key, block_size)
         inc_msg = aes.decrypt(crypt_msg[-2], crypt_msg[-1])
         print("decrypted message:", inc_msg)
 
         #ecrypt ansver
-        aes = AESCipher(secret_key, 32)
+        aes = AESCipher(secret_key, block_size)
 
         iv = aes.makeIv()
 
