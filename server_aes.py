@@ -45,7 +45,7 @@ from autobahn.twisted.resource import WebSocketResource
 secret_key = "Secretkey"
 secret_key += '.' * (16 - (len(secret_key)) % 16
                     )  #align data to be a multiple of 16 in lenght
-block_size=32
+block_size = 32
 
 class AESCipher:
     """
