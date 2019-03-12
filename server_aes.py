@@ -47,6 +47,7 @@ secret_key += '.' * (16 - (len(secret_key)) % 16
                     )  #align data to be a multiple of 16 in lenght
 block_size = 32
 
+
 class AESCipher:
     """
       Usage:
@@ -70,19 +71,15 @@ class AESCipher:
     def decrypt(self, iv, enc):
         if enc is None or len(enc) == 0:
             raise NameError("No value given to decrypt")
+        iv = base64.b64decode(iv)
         enc = base64.b64decode(enc)
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         return cipher.decrypt(enc)
 
     def makeIv(self):
         ivrandh = Random.new().read(16)
-        ivrandl = Random.new().read(16)
         ivrandh = binascii.b2a_base64(ivrandh).encode('utf-8').rstrip()
-        llenght = (16 - (len(ivrandh)) % 16
-                  )  #align data to be a multiple of 16 in lenght
-        ivrandl = binascii.b2a_base64(ivrandl).encode('utf-8').rstrip()
-        iv = ivrandh + ivrandl[:llenght - 0]
-        # print (iv)
+        iv = ivrandh
         return iv
 
 

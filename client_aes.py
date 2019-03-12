@@ -23,6 +23,7 @@ def encrypt(key, iv, raw):
 
 
 def decrypt(key, iv, raw):
+    # print(binascii.b2a_base64(iv))
     crypto = aes(secret_key, 2, iv)
     # crypto = aes(secret_key, 2, binascii.a2b_base64(iv).decode('utf-8'))
     return crypto.decrypt(binascii.a2b_base64(raw)).decode('utf-8')
@@ -30,16 +31,18 @@ def decrypt(key, iv, raw):
 
 def makeIv():
     hrand = urandom.getrandbits(30)  #30 - max value for esp8266
-    lrand = urandom.getrandbits(16)
-    ivstr = str(hrand) + str(lrand)
-    ivstr += '1' * (16 - (len(ivstr)) % 16
-                   )  #align data to be a multiple of 16 in lenght
+    hrand = (hex(hrand)[2:])
+    lrand = urandom.getrandbits(30)
+    lrand = (hex(lrand)[2:])
+    ivstr = (hrand) + (lrand)
+    if (len(ivstr) < 16):
+        ivstr += '1' * (16 - (len(ivstr)) % 16
+                       )  #align data to be a multiple of 16 in lenght
     return ivstr
 
 
 def hello():
     with uwebsockets.client.connect('ws://192.168.12.1:8080/ws') as websocket:
-    # with uwebsockets.client.connect('ws://192.168.12.49:8080/ws') as websocket:
 
         iv = makeIv()
 
@@ -54,7 +57,7 @@ def hello():
         message = '{sysname} {release} {civ} {cmsg}'.format(
             sysname=uname.sysname,
             release=uname.release,
-            civ=iv,
+            civ=binascii.b2a_base64(iv).decode('utf-8').rstrip(),
             cmsg=enc,
         )
         websocket.send(message)
